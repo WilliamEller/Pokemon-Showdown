@@ -338,7 +338,7 @@ export class Battle extends Dex.ModdedDex {
 	eachEvent(eventid: string, effect?: Effect, relayVar?: boolean) {
 		const actives = this.getAllActive();
 		if (!effect && this.effect) effect = this.effect;
-		this.speedSort(actives, (a, b) => b.speed - a.speed);
+		this.speedSort(actives);
 		for (const pokemon of actives) {
 			this.runEvent(eventid, pokemon, null, effect, relayVar);
 		}
@@ -352,6 +352,7 @@ export class Battle extends Dex.ModdedDex {
 		const callbackName = `on${eventid}`;
 		let handlers = this.findBattleEventHandlers(callbackName, 'duration');
 		handlers = handlers.concat(this.findFieldEventHandlers(this.field, callbackName, 'duration'));
+		this.speedSort(handlers); //this double check makes sure that perish song is random
 		for (const side of this.sides) {
 			handlers = handlers.concat(this.findSideEventHandlers(side, callbackName, 'duration'));
 			for (const active of side.active) {
@@ -803,7 +804,7 @@ export class Battle extends Dex.ModdedDex {
 			callback = volatile[callbackName];
 			if (callback !== undefined || (getKey && volatileData[getKey])) {
 				handlers.push({
-					status: volatile, callback, statusData: volatileData, end: pokemon.removeVolatile, thing: pokemon,
+					status: volatile, callback, statusData: volatileData, end: pokemon.removeVolatile, thing: pokemon, 
 				});
 				this.resolveLastPriority(handlers, callbackName);
 			}
